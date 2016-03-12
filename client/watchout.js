@@ -1,50 +1,41 @@
-// start slingin' some d3 here.
-var numOfAsteroids = 5;
+/*global d3*/
+
+var numOfAsteroids = 10;
 var board = d3.select('.board')
-.append('svg');
-  // .attr('width', 500)
-  // .attr('height', 500);
-
-var data = [20, 20, 30, 40, 50];
-
-var asteroids = board.selectAll('image')
-.data(data)
-.enter()
-.append('image');
-
-asteroids.attr('x', function(d) {
-  return d;
-})
-.attr('y', function(d) {
-  return d;
-})
-.attr('xlink:href', 'asteroid.png')
-.attr('height', 50)
-.attr('width', 50);
-
-var data2 = [{z: 4, y: 5}, 370, 145, 600, 110];
-
-// asteroids.data(data2)
-//   .transition()
-//   .duration(500)
-//   .attr('x', function(d) {
-//     return d;
-//   })
-//   .attr('y', function(d) {
-//     return d;
-//   });
+  .append('svg');
 
 var randomCoord = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-var update = function() {
+var data = d3.range(numOfAsteroids).map(function() {
+  return [randomCoord(50, 450), randomCoord(50, 450)];
+});
+
+var quadtree = d3.geom.quadtree()(data, 1, -1, 501, 501);
+
+
+var asteroids = board.selectAll('image')
+  .data(data)
+  .enter()
+  .append('image')
+  .attr('x', function(d) {
+    return d[0];
+  })
+  .attr('y', function(d) {
+    return d[1];
+  })
+  .attr('xlink:href', 'asteroid.png')
+  .attr('height', 50)
+  .attr('width', 50);
+
+var moveAsteroids = function() {
   var coordData = [];
   for ( var i = 0; i < numOfAsteroids; i++ ) {
     coordData.push({
       x: randomCoord(50, 450),
       y: randomCoord(50, 450)
-    });    
+    });
   }
 
   asteroids.data(coordData)
@@ -58,7 +49,8 @@ var update = function() {
   });
 };
 
-setInterval(update, 1000);
+moveAsteroids();
+setInterval(moveAsteroids, 1000);
 
 var player = board.selectAll('circle')
   .data([{x: 150, y: 150}])
@@ -87,10 +79,17 @@ var dragPlayer = d3.behavior.drag()
 
 player.call(dragPlayer);
 
-var force = d3.layout.force()
-  .gravity(0.05) 
+var distance = function (coord1, coord2) {
+  return Math.sqrt( coord1[0] * coord2[0] + coord1[1] * coord2[1]);
+};
 
-  
+var checkCollisions = function() {
+  var playerCoord = [player.data().x, player.data().y];
+
+};
+
+
+
 
 // var updatePlayer = function(data) {
 //   player.data(data);
@@ -101,13 +100,3 @@ var force = d3.layout.force()
 //     return d[1];
 //   });
 // };
-
-
-
-
-
-
-
-
-
-
